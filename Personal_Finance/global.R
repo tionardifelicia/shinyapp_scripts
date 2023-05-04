@@ -49,6 +49,15 @@ ytd_spend_var <- paste("$",
                        )
 )
 
+mtd_top_spend_var <- spend_raw_data %>%
+  filter(month==current_month, year==current_year) %>%
+  group_by(category) %>%
+  summarize(across(c('amount'), ~sum(.x, na.rm=T))) %>%
+  arrange(-amount) %>%
+  slice(1) %>%
+  pull(category)
+
+
 
 # runApp(shinyapp_path, launch.browser = T)
 # runApp()

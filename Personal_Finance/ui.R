@@ -59,13 +59,15 @@ ui <- dashboardPage(
       tabItem(
         tabName="spend_trend_page",
         uiOutput("spend_value_boxes")
-        )
       ),
-
+      
       tabItem(
         tabName="spend_category_page",
         uiOutput("spend_value_boxes2")
-        )
+      )
+    )
+
+      
       
       
     

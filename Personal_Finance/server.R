@@ -47,8 +47,9 @@ server <- function(input, output) {
           width=4
         ),
         valueBox(
-          value="Rent & Food and Drinks",
-          "Top Two Spending Categories",
+          # value="Rent & Food and Drinks",
+          value=mtd_top_spend_var,
+          "Top MTD Spending Category",
           icon=icon("chart-pie"),
           color="teal",
           width=4
@@ -56,9 +57,37 @@ server <- function(input, output) {
       )
   })
   
-  # output$spend_value_boxes2 <- renderUI({
-  #   output$spend_value_boxes
-  # })
+  output$spend_value_boxes2 <- renderUI({
+    output$spend_value_boxes
+  })
+  output$spend_value_boxes2 <- renderUI({
+    fluidRow(
+      valueBox(
+        value=mtd_spend_var,
+        # value=1000,
+        "MTD Spending",
+        icon=icon("coins"),
+        color="aqua",
+        # red, yellow, aqua, blue, light-blue, green, navy, teal, olive, lime, orange, fuchsia, purple, maroon, black.
+        width=4
+      ),
+      valueBox(
+        value=ytd_spend_var,
+        "YTD Spending",
+        icon=icon("file-invoice"),
+        color="light-blue",
+        width=4
+      ),
+      valueBox(
+        # value="Rent & Food and Drinks",
+        value=mtd_top_spend_var,
+        "Top MTD Spending Category",
+        icon=icon("chart-pie"),
+        color="teal",
+        width=4
+      )
+    )
+  })
   
 }
 
