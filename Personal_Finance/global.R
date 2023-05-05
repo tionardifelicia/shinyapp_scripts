@@ -1,6 +1,4 @@
-
-
-pacman::p_load(dplyr, tidyr, shiny, shinydashboard, data.table, DT, shinyWidgets, readr, plotly)
+pacman::p_load(dplyr, tidyr, shiny, shinydashboard, data.table, DT, shinyWidgets, readr, plotly, ggplot2)
 
 shinyapp_path <- '/Users/feliciationardi/Documents/GitHub/shinyapp_scripts/Personal_Finance'
 setwd(shinyapp_path)
@@ -10,7 +8,6 @@ setwd(shinyapp_path)
 base_date <- as.Date("2023-05-04")
 current_month <- month(base_date)
 current_year <- year(base_date)
-
 
 
 
@@ -57,6 +54,21 @@ mtd_top_spend_var <- spend_raw_data %>%
   slice(1) %>%
   pull(category)
 
+
+
+#### Clean up Data ####
+spend_data <- spend_raw_data %>%
+  mutate(year_month=paste0(as.character(year), formatC(month, width=2, flag = "0")))
+
+head(spend_data)
+
+
+
+#### Input Variables ####
+input_month_vars <- seq(1,12,by=1)
+names(input_month_vars) <- month.abb
+
+input_month_vars
 
 
 # runApp(shinyapp_path, launch.browser = T)
