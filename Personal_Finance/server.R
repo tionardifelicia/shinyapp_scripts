@@ -38,42 +38,60 @@ server <- function(input, output) {
   
   # Budget - Monthly Budget vs Monthly Spending Chart
   output$budget_vs_spend_chart <- renderPlotly({
+    year_from_var <- input$budget_spend_year
+    month_from_var <- input$budget_spend_month
+    year_month_var <- paste0(as.character(year_from_var), "_", sprintf("%02d", as.numeric(month_from_var)))
+    
     monthly_spend_df <- spend_data %>%
-      filter(year==2023, month==4) %>%
+      filter(year_month==year_month_var) %>%
+      # filter(year_month=="2023_02") %>%
       group_by(category) %>%
       summarize(across(c("amount"), ~sum(.x, na.rm=T))) %>%
       ungroup() %>%
       rename("spend_amount"="amount")
     
-    monthly_spend_df
-    budget_raw_data
+    # monthly_spend_df
+    # budget_raw_data
     
     budget_vs_spend_df <- budget_raw_data %>%
+      rename("budget_amount"="amount") %>%
       merge(monthly_spend_df, by="category", all.x=T) %>%
-      arrange(-amount)
+      replace_na(list(spend_amount=0)) %>%
+      mutate(amount_left=budget_amount-spend_amount) %>%
+      arrange(-budget_amount)
     
-    fig <- budget_vs_spend_df %>%
-      plot_ly(
-        x=~spend_amount,
-        y=~reorder(category, spend_amount),
-        type="bar",
-        orientation="h"
-    ) %>% 
-      add_trace(
-        x=~budget_vs_spend_df$amount,
-        y=~reorder(budget_vs_spend_df$category, budget_vs_spend_df$amount),
-        type="bar",
-        orientation="h"
-        ) %>%
-      add_trace(
-        text=~paste0("$", amount-spend_amount),
-        textposition="outside"
-      ) %>%
+    # red shade if over budget, green shade if still has leftover budget
+    budget_vs_spend_df2 <- budget_vs_spend_df %>%
+      mutate(shade_pct=if_else(spend_amount>=budget_amount,1,(spend_amount)/budget_amount)) %>% #shade_pct: spend pct
+      mutate(no_shade_pct=1-shade_pct) %>% #no_shade_pct: leftover budget pct
+      mutate(shade_color=if_else(shade_pct>=1, "#DC3D4B", "#5BBDC8")) %>%
+      arrange(-budget_amount)
+    
+    fig <- budget_vs_spend_df2 %>%
+      plot_ly(x=~shade_pct, y=~reorder(category, budget_amount), type="bar", orientation="h",
+              marker=list(color=~shade_color)) %>%
+      add_trace(x=~no_shade_pct, y=~reorder(category, budget_amount), type="bar", orientation="h",
+                marker=list(color='#E1EAEB'),
+                text=~budget_amount, textposition="outside", textfont=list(size=14)) %>%
       layout(
-        barmode="overlay",
-        xaxis=list(title=""),
-        yaxis=list(title="")
-        )
+        margin=list(l=100,r=100),
+        yaxis=list(title="",
+                   showgrid=F,
+                   showline=F,
+                   zeroline=F,
+                   tickfont=list(size=14),
+                   ticksuffix="  "
+                   ),
+        xaxis=list(title="",
+                   showgrid=F,
+                   showline=F,
+                   zeroline=F,
+                   showticklabels=F),
+        showlegend=F,
+        bargap=0.5,
+        barmode="stack"
+      )
+    
     fig
     
   })
@@ -138,12 +156,16 @@ server <- function(input, output) {
   
   output$spend_trend_chart <- renderPlotly({
     spend_trend_df <- spend_trend_df() 
+    # %>%
+    #   mutate(width=0.8)
+    
+    # print('1')
+    # print(head(spend_trend_df))
     
     fig <- spend_trend_df %>%
       plot_ly(
         x=~year_month,
-        y=~amount,
-        type="bar"
+        y=~amount
       ) %>%
       layout(
         xaxis=list(title=""),

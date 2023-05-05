@@ -38,18 +38,25 @@ ui <- dashboardPage(
           box(
             title="Monthly Budget",
             status="primary",
-            solidHeader=TRUE,
-            width=6,
-            height="650px",
-            plotlyOutput("budget_chart")
+            # background="teal",
+            solidHeader=F,
+            width=3,
+            height="650px"
+            # plotlyOutput("budget_chart")
           ),
           box(
             title="Monthly Budget vs Monthly Spending",
             status="primary",
-            solidHeader=TRUE,
-            width=6,
+            # background="teal",
+            solidHeader=F,
+            width=9,
             height="650px",
             # DT::dataTableOutput("budget_table")
+            fluidRow(
+              column(6),
+              column(3, selectizeInput("budget_spend_month", "Spend Month", input_month_vars, current_month, multiple=F)),
+              column(3, selectInput("budget_spend_year", "Spend Year", unique(spend_raw_data$year), current_year, multiple=F))
+            ),
             plotlyOutput("budget_vs_spend_chart")
           ),
           
