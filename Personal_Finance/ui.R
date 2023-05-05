@@ -36,19 +36,22 @@ ui <- dashboardPage(
         tabName="budget_page",
         fluidRow(
           box(
-            title="Chart 2",
+            title="Monthly Budget",
             status="primary",
             solidHeader=TRUE,
             width=6,
-            DT::dataTableOutput("budget_table")
+            height="650px",
+            plotlyOutput("budget_chart")
           ),
           box(
-            title="Chart 3",
+            title="Monthly Budget vs Monthly Spending",
             status="primary",
             solidHeader=TRUE,
             width=6,
-            plotlyOutput("budget_chart")
-          )
+            height="650px",
+            DT::dataTableOutput("budget_table")
+          ),
+          
         )
       ),
       
