@@ -49,7 +49,8 @@ ui <- dashboardPage(
             solidHeader=TRUE,
             width=6,
             height="650px",
-            DT::dataTableOutput("budget_table")
+            # DT::dataTableOutput("budget_table")
+            plotlyOutput("budget_vs_spend_chart")
           ),
           
         )
