@@ -21,33 +21,39 @@ ui <- dashboardPage(
     tabItems(
       tabItem(
         tabName="overview_page",
+        uiOutput('overview_value_boxes'),
         fluidRow(
-          box(
-            title="Chart 1",
-            status="primary",
-            solidHeader=TRUE,
-            width=12,
-            plotOutput(outputId="chart1")
-          )
+          column(3,
+                 box(
+                   title="Box 1",
+                   status="primary",
+                   solidHeader=TRUE,
+                   width=12),
+                 box(
+                   title="Box 2",
+                   status="primary",
+                   solidHeader=TRUE,
+                   width=12)
+                 ),
+          column(9,
+                 box(
+                   title="Chart 1",
+                   status="primary",
+                   solidHeader=TRUE,
+                   width=12)
+                 )
         )
       ),
       
       tabItem(
         tabName="budget_page",
         fluidRow(
-          box(
-            title="Monthly Budget",
-            status="primary",
-            # background="teal",
-            solidHeader=F,
-            width=3,
-            height="650px"
-            # plotlyOutput("budget_chart")
+          column(3,
+            uiOutput("budget_value_boxes")
           ),
           box(
-            title="Monthly Budget vs Monthly Spending",
-            status="primary",
-            # background="teal",
+            # title="Monthly Budget vs Monthly Spending",
+            status="info",
             solidHeader=F,
             width=9,
             height="650px",

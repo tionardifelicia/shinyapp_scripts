@@ -11,30 +11,86 @@ server <- function(input, output) {
   
   
   #### Budget Page ####
-  # # Budget Table
-  # output$budget_table <- DT::renderDataTable({
-  #   DT::datatable(budget_raw_data, options = list(pageLength = 15))
-  # })
-  
-  # Budget Pie Chart
-  output$budget_chart <- renderPlotly({
-    budget_df <- budget_raw_data
+  month_spend_var <- reactive({
+    year_from_var <- input$budget_spend_year
+    month_from_var <- input$budget_spend_month
+    year_month_var <- paste0(as.character(year_from_var), "_", sprintf("%02d", as.numeric(month_from_var)))
     
-    fig <- plot_ly(
-      labels=budget_df$category,
-      values=budget_df$amount,
-      type="pie",
-      hole=0.5) %>%
-      add_pie(
-        hoverinfo="label+value+percent",
-        hovertemplate="%{label} \n %{value} (%{percent})"
-      ) %>%
-      layout(
-        showlegend=F,
-        width=500,
-        height=500
-        )
+    print('0')
+    print(year_from_var)
+    print(year_month_var)
+    
+    month_spend_var <- spend_data %>%
+      filter(year_month==year_month_var) %>%
+      pull(amount) %>%
+      sum()
+    print('1')
+    print(month_spend_var)
+    month_spend_var
   })
+  
+  leftover_var <- reactive({
+    leftover_var <- budget_var-month_spend_var()
+  })
+  
+  # Budget - Value Boxes
+  output$budget_value_boxes <- renderUI({
+    #          # red, yellow, aqua, blue, light-blue, green, navy, teal, olive, lime, orange, fuchsia, purple, maroon, black.
+    
+    budget_var <- paste("$",
+                          formatC(
+                            budget_var,
+                            format="f",
+                            big.mark=",",
+                            digits=0))
+    
+    month_spend_var <- paste("$",
+                             formatC(
+                               month_spend_var(),
+                               format="f",
+                               big.mark=",",
+                               digits=0))
+    
+    leftover_var <- paste("$",
+                        formatC(
+                          leftover_var(),
+                          format="f",
+                          big.mark=",",
+                          digits=0))
+    
+    fluidRow(
+      column(12,
+             valueBox(
+               value=budget_var,
+               "Budget",
+               icon=icon("comment-dollar"),
+               color="green",
+               width=12
+             )
+      ),
+      column(12,
+             valueBox(
+               value=month_spend_var,
+               "Spending",
+               icon=icon("file-invoice"),
+               color="teal",
+               width=12
+             )
+      ),
+      column(12,
+             valueBox(
+               # value="Rent & Food and Drinks",
+               value=leftover_var,
+               "Left Over",
+               icon=icon("wallet"),
+               color="yellow",
+               width=12
+               )
+             )
+      )
+  })
+  
+  
   
   # Budget - Monthly Budget vs Monthly Spending Chart
   output$budget_vs_spend_chart <- renderPlotly({
