@@ -73,14 +73,10 @@ server <- function(input, output) {
     year_from_var <- input$spend_year_from
     month_from_var <- input$spend_month_from
     year_month_from <- paste0(as.character(year_from_var), sprintf("%02d", as.numeric(month_from_var)))
-    print('0a')
-    print(year_month_from)
     
     year_to_var <- input$spend_year_to
     month_to_var <- input$spend_month_to
     year_month_to <- paste0(as.character(year_to_var), sprintf("%02d", as.numeric(month_to_var)))
-    print('0b')
-    print(year_month_to)
     
     spend_df <- spend_data %>%
       filter(year_month>=year_month_from, year_month<=year_month_to) %>%
@@ -97,22 +93,12 @@ server <- function(input, output) {
     print('1')
     print(head(spend_category_df))
     
-    ## ggplot
-    # fig <- spend_category_df %>%
-    #   ggplot(aes(x=reorder(category, amount), y=amount)) +
-    #   geom_col(fill="grey") +
-    #   labs(x="Category", y="Spending Amount") +
-    #   coord_flip() +
-    #   theme_bw()
-    # 
-    # fig
-    
     ##plotly
     fig <- spend_category_df %>%
       arrange(-amount) %>%
       plot_ly(
         x=~amount,
-        y=~category,
+        y=~reorder(category, amount),
         type="bar",
         orientation="h"
       ) %>%
