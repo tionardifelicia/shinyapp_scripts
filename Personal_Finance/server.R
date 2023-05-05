@@ -60,6 +60,8 @@ server <- function(input, output) {
   })
   
   # Spend - Over Time Chart
+  
+  
   output$spend_trend_chart <- renderPlotly({
     fig <- plot_ly(
       labels=mtcars$mpg,
@@ -72,13 +74,15 @@ server <- function(input, output) {
   spend_category_df <- reactive({
     year_from_var <- input$spend_year_from
     month_from_var <- input$spend_month_from
-    year_month_from <- paste0(as.character(year_from_var), sprintf("%02d", as.numeric(month_from_var)))
+    year_month_from <- paste0(as.character(year_from_var), '_', sprintf("%02d", as.numeric(month_from_var)))
     
     year_to_var <- input$spend_year_to
     month_to_var <- input$spend_month_to
-    year_month_to <- paste0(as.character(year_to_var), sprintf("%02d", as.numeric(month_to_var)))
+    year_month_to <- paste0(as.character(year_to_var), '_', sprintf("%02d", as.numeric(month_to_var)))
     
     spend_df <- spend_data %>%
+      filter(is.null(input$spend_category) | category %in% input$spend_category) %>%
+      # filter(category %in% input$spend_category) %>%
       filter(year_month>=year_month_from, year_month<=year_month_to) %>%
       group_by(category) %>%
       summarize(across(c('amount'), ~sum(.x, na.rm=T))) %>%

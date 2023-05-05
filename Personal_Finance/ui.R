@@ -67,7 +67,10 @@ ui <- dashboardPage(
               column(3, selectizeInput("spend_month_from", "From: Month", input_month_vars, current_month, multiple=F)),
               column(3, selectInput("spend_year_from", "Year", unique(spend_raw_data$year), current_year, multiple=F)),
               column(3, selectInput("spend_month_to", "To: Month", input_month_vars, current_month, multiple=F)),
-              column(3, selectizeInput("spend_year_to", "Year", unique(spend_raw_data$year), current_year, multiple=F))
+              column(3, selectizeInput("spend_year_to", "Year", unique(spend_raw_data$year), current_year, multiple=F)),
+              
+              column(6, selectizeInput("spend_category", "Categories:", c("All"= "", budget_raw_data$category), "", multiple=T)),
+              column(6)
               )
         )
       ),

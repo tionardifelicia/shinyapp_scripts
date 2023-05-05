@@ -58,7 +58,8 @@ mtd_top_spend_var <- spend_raw_data %>%
 
 #### Clean up Data ####
 spend_data <- spend_raw_data %>%
-  mutate(year_month=paste0(as.character(year), formatC(month, width=2, flag = "0")))
+  mutate(year_month=paste0(as.character(year), '_', formatC(month, width=2, flag = "0"))) %>%
+  mutate(year_quarter=paste0(as.character(year), '_', as.character((month - 1) %/% 3 + 1)))
 
 head(spend_data)
 
