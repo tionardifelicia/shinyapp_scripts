@@ -1,4 +1,4 @@
-pacman::p_load(dplyr, tidyr, shiny, shinydashboard, data.table, DT, shinyWidgets, readr, plotly, ggplot2)
+pacman::p_load(dplyr, tidyr, shiny, shinydashboard, data.table, DT, shinyWidgets, readr, plotly, ggplot2, readxl)
 
 shinyapp_path <- '/Users/feliciationardi/Documents/GitHub/shinyapp_scripts/Personal_Finance'
 setwd(shinyapp_path)
@@ -6,22 +6,25 @@ setwd(shinyapp_path)
 
 #### Variables ####
 base_date <- as.Date("2023-05-04")
+# base_data <- Sys.Date()
 current_month <- month(base_date)
 current_year <- year(base_date)
 
 
 
 #### Pull Raw Data ####
-base_raw_data_path <- '/Users/feliciationardi/Documents/productive/raw_data/'
+raw_data_path <- '/Users/feliciationardi/Documents/productive/raw_data/personal_finance_raw_data_dummies.xlsx'
+# base_raw_data_path <- '/Users/feliciationardi/Documents/productive/raw_data/personal_finance_raw_data.xlsx'
 spend_raw_filename <- 'expenses_data.csv'
-spend_raw_data <- read_csv(paste0(base_raw_data_path, spend_raw_filename))
-
-budget_raw_filename <- 'budget_data.csv'
-budget_raw_data <- read_csv(paste0(base_raw_data_path, budget_raw_filename))
+spend_raw_data <- read_excel(raw_data_path, 'expenses_data')
+budget_raw_data <- read_excel(raw_data_path, 'budget_data')
+networth_data <- read_excel(raw_data_path, 'net_worth_data')
 
 
 
 #### Values for Spend Value Boxes ####
+budget_var <- sum(budget_raw_data$amount)
+
 mtd_spend_var <- paste("$",
                        formatC(
                          spend_raw_data %>%
@@ -30,8 +33,7 @@ mtd_spend_var <- paste("$",
                            sum(),
                          format="f",
                          big.mark=",",
-                         digits=0
-                       )
+                         digits=0)
 )
 
 ytd_spend_var <- paste("$",
@@ -42,8 +44,7 @@ ytd_spend_var <- paste("$",
                            sum(),
                          format="f",
                          big.mark=",",
-                         digits=0
-                       )
+                         digits=0)
 )
 
 mtd_top_spend_var <- spend_raw_data %>%
