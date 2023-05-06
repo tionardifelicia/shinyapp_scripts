@@ -38,17 +38,10 @@ server <- function(input, output) {
     month_from_var <- input$budget_spend_month
     year_month_var <- paste0(as.character(year_from_var), "_", sprintf("%02d", as.numeric(month_from_var)))
     
-    print('0')
-    print(year_from_var)
-    print(year_month_var)
-    
     month_spend_var <- spend_data %>%
       filter(year_month==year_month_var) %>%
       pull(amount) %>%
       sum()
-    print('1')
-    print(month_spend_var)
-    month_spend_var
   })
   
   leftover_var <- reactive({
@@ -275,7 +268,8 @@ server <- function(input, output) {
       ) %>%
       layout(
         xaxis=list(title=""),
-        yaxis=list(title="")
+        yaxis=list(title="",
+                   show)
       )
   })
   

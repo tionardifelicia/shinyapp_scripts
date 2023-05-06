@@ -29,8 +29,8 @@ ui <- dashboardPage(
                    solidHeader=F,
                    height="300px",
                    width=12,
-                   column(8),
-                   column(4, selectInput("view_asset_options", "", c("By Account Name", "By Account Type"))),
+                   column(7),
+                   column(5, selectInput("view_asset_options", "", c("By Account Name", "By Account Type"))),
                    textOutput("assets_text")
                    ),
                  box(
