@@ -3,12 +3,34 @@ server <- function(input, output) {
   
   
   #### Overview Page ####
-  # Chart 1
-  output$chart1 <- renderPlot({
-    ggplot(mtcars, aes(x = mpg, y = wt)) + 
-      geom_point()
+  output$overview_value_boxes <- renderUI({
+    fluidRow(
+      valueBox(
+        value=networth_var,
+        # value=1000,
+        "Net Worth",
+        icon=icon("coins"),
+        color="aqua",
+        # red, yellow, aqua, blue, light-blue, green, navy, teal, olive, lime, orange, fuchsia, purple, maroon, black.
+        width=4
+      ),
+      valueBox(
+        value=ytd_income_var,
+        "YTD Income",
+        icon=icon("file-invoice"),
+        color="light-blue",
+        width=4
+      ),
+      valueBox(
+        # value="Rent & Food and Drinks",
+        value=ytd_spend_var,
+        "YTD Spending",
+        icon=icon("chart-pie"),
+        color="teal",
+        width=4
+      )
+    )
   })
-  
   
   #### Budget Page ####
   month_spend_var <- reactive({
@@ -120,7 +142,7 @@ server <- function(input, output) {
     budget_vs_spend_df2 <- budget_vs_spend_df %>%
       mutate(shade_pct=if_else(spend_amount>=budget_amount,1,(spend_amount)/budget_amount)) %>% #shade_pct: spend pct
       mutate(no_shade_pct=1-shade_pct) %>% #no_shade_pct: leftover budget pct
-      mutate(shade_color=if_else(shade_pct>=1, "#DC3D4B", "#5BBDC8")) %>%
+      mutate(shade_color=if_else(amount_left<0, "#DC3D4B", "#5BBDC8")) %>%
       arrange(-budget_amount)
     
     fig <- budget_vs_spend_df2 %>%

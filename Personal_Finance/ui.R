@@ -16,30 +16,36 @@ ui <- dashboardPage(
   ),
   
   dashboardBody(
-    # uiOutput("spend_value_boxes"),
     
     tabItems(
       tabItem(
         tabName="overview_page",
         uiOutput('overview_value_boxes'),
         fluidRow(
-          column(3,
+          column(4,
                  box(
-                   title="Box 1",
+                   title="Assets",
                    status="primary",
-                   solidHeader=TRUE,
-                   width=12),
+                   solidHeader=F,
+                   height="300px",
+                   width=12,
+                   column(8),
+                   column(4, selectInput("view_asset_options", "", c("By Account Name", "By Account Type"))),
+                   textOutput("assets_text")
+                   ),
                  box(
                    title="Box 2",
                    status="primary",
                    solidHeader=TRUE,
+                   height="300px",
                    width=12)
                  ),
-          column(9,
+          column(8,
                  box(
                    title="Chart 1",
                    status="primary",
                    solidHeader=TRUE,
+                   height="620px",
                    width=12)
                  )
         )
@@ -80,7 +86,7 @@ ui <- dashboardPage(
                      plotlyOutput("spend_category_chart"))
         ),
         fluidRow(
-          box(title="Charts Configurations", status="success", width=12,
+          box(title="Chart Configurations", status="info", width=12,
               column(3, selectizeInput("spend_month_from", "From: Month", input_month_vars, current_month, multiple=F)),
               column(3, selectInput("spend_year_from", "Year", unique(spend_raw_data$year), current_year, multiple=F)),
               column(3, selectInput("spend_month_to", "To: Month", input_month_vars, current_month, multiple=F)),
