@@ -227,11 +227,6 @@ server <- function(input, output) {
   
   output$spend_trend_chart <- renderPlotly({
     spend_trend_df <- spend_trend_df() 
-    # %>%
-    #   mutate(width=0.8)
-    
-    # print('1')
-    # print(head(spend_trend_df))
     
     fig <- spend_trend_df %>%
       plot_ly(
@@ -251,12 +246,35 @@ server <- function(input, output) {
       group_by(category) %>%
       summarize(across(c("amount"), ~sum(.x, na.rm=T))) %>%
       ungroup() %>%
+      # mutate(ticktext=paste0("$ ", formatC(amount, format="f",big.mark=",",digits=0))) %>%
       arrange(-amount)
+      # mutate(shade_color=if_else(amount_left<0, "#DC3D4B", "#5BBDC8"))
   })
   
   
   output$spend_category_chart <- renderPlotly({
     spend_category_df <- spend_category_df()
+    
+    # #027CC1
+    # #0D7EBF
+    # #1A83C0
+    # #2687BF
+    # #328BBE
+    # #3C8DBC ---
+    # #4A93BD
+    # #5898BC
+    # #659CBC
+    # #70A1BE
+    
+    # #7DA6BE
+    # #88AABE
+    # #94AEBE
+    # #9EB2BF
+    # #A8B5BE
+    
+    
+    
+    colors_list <- c("#2B86BB", "#348ABC","#3C8DBC","#4491BD","#4E95BE","#5698BE","#5F9BBE","#689EBE","#70A1BE","#79A4BE","#89AABE","#91AEBF","#9AB2C1", "#9FB4C1", "#A6B7C2")
     
     fig <- spend_category_df %>%
       arrange(-amount) %>%
@@ -264,15 +282,27 @@ server <- function(input, output) {
         x=~amount,
         y=~reorder(category, amount),
         type="bar",
-        orientation="h"
+        orientation="h",
+        marker=list(color=~colors_list),
+        hovertemplate=" %{y} <br> <b>%{x}</b> <extra></extra>"
       ) %>%
       layout(
-        xaxis=list(title=""),
+        xaxis=list(title="",
+                   zeroline=F,
+                   tickprefix="$",
+                   tickformat=",d"),
         yaxis=list(title="",
-                   show)
+                   showgrid=F,
+                   showline=F,
+                   zeroline=F,
+                   tickfont=list(size=14),
+                   ticksuffix="  "),
+        bargap=0.3,
+        hoverlabel=list(bgcolor="white",
+                        font=list(size=14))
       )
+    fig
   })
-  
   
   
 }

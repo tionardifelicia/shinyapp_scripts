@@ -80,13 +80,13 @@ ui <- dashboardPage(
         tabName="spend_page",
         uiOutput("spend_value_boxes"),
         fluidRow(
-          box(title="Over Time", status="primary", solidHeader=F, width=6, height="600px",
+          box(title="Over Time", status="primary", solidHeader=F, width=6, height="500px",
                      plotlyOutput("spend_trend_chart")),
-          box(title="By Category", status="primary", solidHeader=F, width=6, height="600px",
+          box(title="By Category", status="primary", solidHeader=F, width=6, height="500px",
                      plotlyOutput("spend_category_chart"))
         ),
         fluidRow(
-          box(title="Chart Configurations", status="info", width=12,
+          box(title="Chart Configurations", status="info", width=9,
               column(3, selectizeInput("spend_month_from", "From: Month", input_month_vars, current_month, multiple=F)),
               column(3, selectInput("spend_year_from", "Year", unique(spend_raw_data$year), current_year, multiple=F)),
               column(3, selectInput("spend_month_to", "To: Month", input_month_vars, current_month, multiple=F)),
@@ -94,6 +94,9 @@ ui <- dashboardPage(
               
               column(6, selectizeInput("spend_category", "Categories:", c("All"= "", budget_raw_data$category), "", multiple=T)),
               column(6)
+              ),
+          box(title="", status="info", width=3,
+              renderText("test <br> test")
               )
         )
       ),
