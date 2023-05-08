@@ -123,8 +123,155 @@ server <- function(input, output) {
         hoverlabel=list(bgcolor="white",
                         font=list(size=20))
       )
+  })
+  
+  
+  output$income_vs_spend_chart <- renderPlotly({
+    time_period_var <- input$income_vs_spend_options
+
+    if(time_period_var=="Last Six Months") {
+      cashflow_df <- networth_data %>%
+        filter(year_month>=six_months_ago_var)
+    } else if(time_period_var=="Last Year") {
+      cashflow_df <- networth_data %>%
+        filter(year_month>=last_year_var)
+    } else {
+      cashflow_df <- networth_data
+    }
+
+    xaxis_labels_df <- cashflow_df %>%
+      group_by(year) %>%
+      summarize(min_month=min(month)) %>%
+      ungroup() %>%
+      mutate(xaxis_tick_label1=paste0(month.abb[min_month], "<br>", as.character(year)))
+
+    cashflow_df2 <- cashflow_df %>%
+      mutate(savings=income-spend) %>% 
+      merge(xaxis_labels_df, by.x=c("year", "month"), by.y=c("year", "min_month"), all.x=T) %>%
+      mutate(xaxis_tick_label=if_else(is.na(xaxis_tick_label1), paste0(month.abb[month]), xaxis_tick_label1)) %>%
+      mutate(xaxis_hover_label=paste0(month.abb[month], " ", as.character(year))) %>%
+      mutate(income_hover_label=paste("$", formatC(income, digits=0, big.mark=",", format="f"))) %>%
+      mutate(spend_hover_label=paste("$", formatC(spend, digits=0, big.mark=",", format="f"))) %>%
+      mutate(savings_hover_label=paste("$", formatC(savings, digits=0, big.mark=",", format="f"))) %>%
+      mutate(hover_label=paste(xaxis_hover_label, "<br>",
+                               "Income: <b>", income_hover_label, "</b><br>",
+                               "Spend: <b>", spend_hover_label, "</b><br>",
+                               "Savings: <b>", savings_hover_label)) 
+    # %>%
+    #   mutate(fill_colors=if_else(savings<0, "#F8C4C2", "#DCF9DA"))
+
+    cashflow_df2
+    
+    head(cashflow_df2,10)
+    
+    fig1 <- cashflow_df2 %>%
+      plot_ly(
+        x=~xaxis_hover_label,
+        y=~income,
+        name="Income",
+        type="scatter",
+        mode="lines",
+        hoverinfo="text",
+        line=list(width=1.75, shape="spline"), # shape="spline" to smooth the line chart
+        fill="tozeroy",
+        fillcolor="#DAF6F9",
+        customdata=cashflow_df2$hover_label,
+        hovertemplate="%{customdata}<extra></extra>"
+      ) %>%
+      layout(
+        xaxis=list(
+          title="",
+          tickmode="array",
+          tickvals=~xaxis_hover_label,
+          ticktext=~xaxis_tick_label,
+          showgrid=F,
+          zeroline=F
+        ),
+        yaxis=list(
+          title="Income",
+          showgrid=F,
+          zeroline=F,
+          showticklabels=F
+        ),
+        hoverlabel=list(bgcolor="white", font=list(size=14))
+      )
+    
+    fig1
+    
+    fig2 <- cashflow_df2 %>%
+      plot_ly(
+        x=~xaxis_hover_label,
+        y=~spend,
+        name="Spend",
+        type="scatter",
+        mode="lines",
+        hoverinfo="text",
+        line=list(width=1.75, shape="spline", color="#F36909"),
+        fill="tozeroy",
+        fillcolor="#F8D8C2",
+        customdata=cashflow_df2$hover_label,
+        hovertemplate="%{customdata}<extra></extra>"
+      ) %>%
+      layout(
+        xaxis=list(
+          title="",
+          tickmode="array",
+          tickvals=~xaxis_hover_label,
+          ticktext=~xaxis_tick_label,
+          showgrid=F,
+          zeroline=F
+        ),
+        yaxis=list(
+          title="Spend",
+          showgrid=F,
+          zeroline=F,
+          showticklabels=F
+        ),
+        hoverlabel=list(bgcolor="white", font=list(size=14))
+      )
+      
+    fig2
+    
+    fig3 <- cashflow_df2 %>%
+      plot_ly(
+        x=~xaxis_hover_label,
+        y=~savings,
+        name="Savings",
+        type="scatter",
+        mode="lines",
+        hoverinfo="text",
+        line=list(width=1.75, shape="spline", color="#1DA414"),
+        fill="tozeroy",
+        fillcolor="#DCF9DA",
+        # fillcolor=~fill_colors,
+        customdata=cashflow_df2$hover_label,
+        hovertemplate="%{customdata}<extra></extra>"
+      ) %>%
+      layout(
+        xaxis=list(
+          title="",
+          tickmode="array",
+          tickvals=~xaxis_hover_label,
+          ticktext=~xaxis_tick_label,
+          showgrid=F,
+          zeroline=F
+        ),
+        yaxis=list(
+          title="Savings",
+          showgrid=F,
+          zeroline=F,
+          showticklabels=F
+        ),
+        hoverlabel=list(bgcolor="white", font=list(size=14))
+      )
+
+    fig3
+    
+    fig <- subplot(fig1, fig2, fig3, nrows=3, shareX=T) %>%
+      layout(hovermode="x unified")
     
     fig
+    
     
   })
   

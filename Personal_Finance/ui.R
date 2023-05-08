@@ -48,7 +48,12 @@ ui <- dashboardPage(
                          column(3, selectInput("networth_chart_options", "", c("Last Six Months", "Last Year", "All Time"), selected="All Time", multiple=F)),
                          column(9)),
                        plotlyOutput("networth_chart")),
-                     tabPanel("Income vs Spending", plotlyOutput("income_vs_spend_chart"))
+                     tabPanel(
+                       "Income vs Spending", 
+                       fluidRow(
+                         column(3, selectInput("income_vs_spend_options", "", c("Last Six Months", "Last Year", "All Time"), selected="All Time", multiple=F)),
+                         column(9)),
+                       plotlyOutput("income_vs_spend_chart"))
                    
                    )
                  )
