@@ -216,27 +216,67 @@ server <- function(input, output) {
   
   # Spend - Over Time Chart
   spend_trend_df <- reactive({
+    # spend_trend_df <- filtered_spend_df %>%
     spend_trend_df <- filtered_spend_df() %>%
       filter(is.null(input$spend_category) | category %in% input$spend_category) %>%
-      group_by(year_month) %>%
+      group_by(year_month, year, month) %>%
       summarize(across(c("amount"), ~sum(.x, na.rm=T))) %>%
       ungroup() %>%
       arrange(year_month)
     
+    xaxis_labels_df <- spend_trend_df %>%
+      group_by(year) %>%
+      summarize(min_month=min(month)) %>%
+      ungroup() %>%
+      mutate(xaxis_tick_label1=paste0(month.abb[min_month], "<br>", as.character(year)))
+    
+    spend_trend_df2 <- spend_trend_df %>%
+      merge(xaxis_labels_df, by.x=c("year", "month"), by.y=c("year", "min_month"), all.x=T) %>%
+      mutate(xaxis_tick_label=if_else(is.na(xaxis_tick_label1), paste0(month.abb[month]), xaxis_tick_label1)) %>%
+      mutate(xaxis_hover_label=paste0(month.abb[month], " ", as.character(year)))
   })
   
   output$spend_trend_chart <- renderPlotly({
-    spend_trend_df <- spend_trend_df() 
+    spend_trend_df <- spend_trend_df()
     
     fig <- spend_trend_df %>%
       plot_ly(
-        x=~year_month,
-        y=~amount
+        x=~xaxis_tick_label,
+        y=~amount,
+        customdata=spend_trend_df$xaxis_hover_label,
+        hovertemplate=" %{customdata} <br> <b>%{y}</b> <extra></extra>",
+        type="bar"
       ) %>%
       layout(
-        xaxis=list(title=""),
-        yaxis=list(title="")
+        xaxis=list(title="",
+                   tickmode="array",
+                   tickvals=~xaxis_tick_label, # so that xaxis tick labels are in order according to this column's values
+                   tickvals=~xaxis_tick_label,
+                   zeroline=F),
+        yaxis=list(title="",
+                   zeroline=F,
+                   showgrid=F,
+                   tickprefix="$ ",
+                   tickformat=",d",
+                   font=list(size=14)),
+        bargap=0.3,
+        hoverlabel=list(bgcolor="white",
+                        font=list(size=14))
       )
+    fig
+    # xaxis=list(title="",
+    #            zeroline=F,
+    #            tickprefix="$",
+    #            tickformat=",d"),
+    # yaxis=list(title="",
+    #            showgrid=F,
+    #            showline=F,
+    #            zeroline=F,
+    #            tickfont=list(size=14),
+    #            ticksuffix="  "),
+    # bargap=0.3,
+    # hoverlabel=list(bgcolor="white",
+    #                 font=list(size=14))
   })
   
   # Spend - By Category Chart
@@ -254,25 +294,6 @@ server <- function(input, output) {
   
   output$spend_category_chart <- renderPlotly({
     spend_category_df <- spend_category_df()
-    
-    # #027CC1
-    # #0D7EBF
-    # #1A83C0
-    # #2687BF
-    # #328BBE
-    # #3C8DBC ---
-    # #4A93BD
-    # #5898BC
-    # #659CBC
-    # #70A1BE
-    
-    # #7DA6BE
-    # #88AABE
-    # #94AEBE
-    # #9EB2BF
-    # #A8B5BE
-    
-    
     
     colors_list <- c("#2B86BB", "#348ABC","#3C8DBC","#4491BD","#4E95BE","#5698BE","#5F9BBE","#689EBE","#70A1BE","#79A4BE","#89AABE","#91AEBF","#9AB2C1", "#9FB4C1", "#A6B7C2")
     
