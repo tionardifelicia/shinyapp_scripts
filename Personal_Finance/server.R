@@ -59,19 +59,76 @@ server <- function(input, output) {
                      # dom = 'l<"sep">Bfrtip',
                      buttons = c("copy"))
     )
+  })
+  
+  output$networth_chart <- renderPlotly({
+    time_period_var <- input$networth_chart_options
     
-    # datatable(final_format(),
-    #           rownames = F,
-    #           extensions = 'Buttons',
-    #           options = list(scrollX = T,
-    #                          scrollY = '70vh',   # 70% of window height
-    #                          paging = F,
-    #                          dom = 'fBt',   # filtering input, Buttons, table
-    #                          buttons = c('csv', 'excel'))
-    # ) %>%
-    #   formatPercentage(c('Multiplier'), digits = 0)
+    if(time_period_var=="Last Six Months") {
+      networth_df <- networth_data %>%
+        filter(year_month>=six_months_ago_var)
+    } else if(time_period_var=="Last Year") {
+      networth_df <- networth_data %>%
+        filter(year_month>=last_year_var)
+    } else {
+      networth_df <- networth_data
+    }
+    
+    xaxis_labels_df <- networth_df %>%
+      group_by(year) %>%
+      summarize(min_month=min(month)) %>%
+      ungroup() %>%
+      mutate(xaxis_tick_label1=paste0(month.abb[min_month], "<br>", as.character(year)))
+    
+    networth_df2 <- networth_df %>%
+      merge(xaxis_labels_df, by.x=c("year", "month"), by.y=c("year", "min_month"), all.x=T) %>%
+      mutate(xaxis_tick_label=if_else(is.na(xaxis_tick_label1), paste0(month.abb[month]), xaxis_tick_label1)) %>%
+      mutate(xaxis_hover_label=paste0(month.abb[month], " ", as.character(year))) %>%
+      mutate(yvalue_hover_label=paste("$", formatC(balance/1000, digits=1, big.mark=",", format="f"), "K"))
+    
+    # formatC(networth_df$balance, "$", , digits=1, big.mark=",", format="f", suffix="K")
+    networth_df2
+    
+    fig <- networth_df2 %>%
+      plot_ly(
+        x=~xaxis_hover_label,
+        y=~balance,
+        type="scatter",
+        mode="lines",
+        line=list(width=3.5),
+        fill="tozeroy",
+        # colors_list <- c("#2B86BB", "#348ABC","#3C8DBC","#4491BD","#4E95BE","#5698BE","#5F9BBE","#689EBE","#70A1BE","#79A4BE","#89AABE","#91AEBF","#9AB2C1", "#9FB4C1", "#A6B7C2")
+        fillcolor="#E6F4FC",
+        customdata=paste0(networth_df2$xaxis_hover_label, "<br><b>", networth_df2$yvalue_hover_label, "</b>"),
+        # customdata2=networth_df2$yvalue_hover_label,
+        # hovertemplate=" %{customdata} <br> <b>%{y}</b><extra></extra>"
+        hovertemplate=" %{customdata}<extra></extra>"
+      ) %>%
+      layout(
+        yaxis=list(
+          title="",
+          zeroline=F,
+          showticklabels=F,
+          # ticktext=~yvalue_hover_label,
+          showline=F,
+          showgrid=F),
+        xaxis=list(
+          title="",
+          zeroline=F,
+          showline=F,
+          showgrid=F,
+          tickmode="array", # to manually set the tick values on x axis
+          tickvals=~xaxis_hover_label,
+          ticktext=~xaxis_tick_label),
+        hoverlabel=list(bgcolor="white",
+                        font=list(size=20))
+      )
+    
+    fig
     
   })
+  
+  
   
   #### Budget Page ####
   month_spend_var <- reactive({

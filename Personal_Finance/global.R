@@ -39,6 +39,7 @@ head(networth_data)
 
 
 #### Values for Value Boxes ####
+# Overview - Variables
 ytd_df <- networth_data %>%
   filter(year==year(base_date))
 
@@ -70,8 +71,15 @@ ytd_spend_var <- paste("$",
                                digits=0)
 )
 
+last_year_var <- paste0(as.character(year(base_date)-1), "_", formatC(month(base_date %m-% months(12)), width=2, flag="0"))
+six_months_ago_var <- paste0(as.character(year(base_date)-1), "_", formatC(month(base_date %m-% months(6)), width=2, flag="0"))
+
+
+
+# Budget - Variables
 budget_var <- sum(budget_raw_data$amount)
 
+# Spend - Variables
 mtd_spend_var <- paste("$",
                        formatC(
                          spend_raw_data %>%
