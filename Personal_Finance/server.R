@@ -112,6 +112,7 @@ server <- function(input, output) {
     year_from_var <- input$budget_spend_year
     month_from_var <- input$budget_spend_month
     year_month_var <- paste0(as.character(year_from_var), "_", sprintf("%02d", as.numeric(month_from_var)))
+    # year_month_var <- "2023_02"
     
     monthly_spend_df <- spend_data %>%
       filter(year_month==year_month_var) %>%
@@ -121,29 +122,38 @@ server <- function(input, output) {
       ungroup() %>%
       rename("spend_amount"="amount")
     
-    # monthly_spend_df
-    # budget_raw_data
+    monthly_spend_df
+    budget_raw_data
     
     budget_vs_spend_df <- budget_raw_data %>%
       rename("budget_amount"="amount") %>%
       merge(monthly_spend_df, by="category", all.x=T) %>%
       replace_na(list(spend_amount=0)) %>%
       mutate(amount_left=budget_amount-spend_amount) %>%
+      mutate(amount_left=if_else(amount_left>budget_amount, budget_amount, amount_left)) %>%
       arrange(-budget_amount)
     
     # red shade if over budget, green shade if still has leftover budget
     budget_vs_spend_df2 <- budget_vs_spend_df %>%
-      mutate(shade_pct=if_else(spend_amount>=budget_amount,1,(spend_amount)/budget_amount)) %>% #shade_pct: spend pct
+      mutate(shade_pct=if_else(spend_amount>=budget_amount,1, if_else(spend_amount<0, 0, (spend_amount)/budget_amount))) %>% #shade_pct: spend pct
       mutate(no_shade_pct=1-shade_pct) %>% #no_shade_pct: leftover budget pct
       mutate(shade_color=if_else(amount_left<0, "#DC3D4B", "#5BBDC8")) %>%
+      mutate(text_labels=paste("$", formatC(budget_amount, format="f", digits=0, big.mark=","))) %>%
+      mutate(spent_hover_label=paste("$", formatC(spend_amount, format="f", digits=0, big.mark=","))) %>%
+      mutate(leftover_hover_label=paste("$", formatC(max(amount_left,0), format="f", digits=0, big.mark=","))) %>%
       arrange(-budget_amount)
     
     fig <- budget_vs_spend_df2 %>%
       plot_ly(x=~shade_pct, y=~reorder(category, budget_amount), type="bar", orientation="h",
-              marker=list(color=~shade_color)) %>%
+              marker=list(color=~shade_color),
+              customdata=budget_vs_spend_df2$spent_hover_label,
+              hovertemplate="%{y}<br>%{customdata} spent<extra></extra>"
+              ) %>%
       add_trace(x=~no_shade_pct, y=~reorder(category, budget_amount), type="bar", orientation="h",
                 marker=list(color='#E1EAEB'),
-                text=~budget_amount, textposition="outside", textfont=list(size=14)) %>%
+                customdata=budget_vs_spend_df2$leftover_hover_label,
+                hovertemplate="%{y}<br>%{customdata} left<extra></extra>",
+                text=~text_labels, textposition="outside", textfont=list(size=14)) %>%
       layout(
         margin=list(l=100,r=100),
         yaxis=list(title="",
@@ -256,7 +266,7 @@ server <- function(input, output) {
         yaxis=list(title="",
                    zeroline=F,
                    showgrid=F,
-                   tickprefix="$ ",
+                   tickprefix="$",
                    tickformat=",d",
                    font=list(size=14)),
         bargap=0.3,
@@ -268,14 +278,15 @@ server <- function(input, output) {
   
   # Spend - By Category Chart
   spend_category_df <- reactive({
+    # spend_category_df <- filtered_spend_df %>%
     spend_category_df <- filtered_spend_df() %>%
-      filter(is.null(input$spend_category) | category %in% input$spend_category) %>%
+    filter(is.null(input$spend_category) | category %in% input$spend_category) %>%
       group_by(category) %>%
       summarize(across(c("amount"), ~sum(.x, na.rm=T))) %>%
       ungroup() %>%
-      # mutate(ticktext=paste0("$ ", formatC(amount, format="f",big.mark=",",digits=0))) %>%
+      mutate(spend_pct=paste(formatC(amount/sum(amount)*100, digits=0, format="f"), "%")) %>%
       arrange(-amount)
-      # mutate(shade_color=if_else(amount_left<0, "#DC3D4B", "#5BBDC8"))
+    spend_category_df
   })
   
   
@@ -292,7 +303,8 @@ server <- function(input, output) {
         type="bar",
         orientation="h",
         marker=list(color=~colors_list),
-        hovertemplate=" %{y} <br> <b>%{x}</b> <extra></extra>"
+        customdata=spend_category_df$spend_pct,
+        hovertemplate=" %{y} <br> <b>%{x}</b><br> ~%{customdata} of spend<extra></extra>"
       ) %>%
       layout(
         xaxis=list(title="",

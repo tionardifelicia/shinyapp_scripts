@@ -69,7 +69,8 @@ ui <- dashboardPage(
               column(3, selectizeInput("budget_spend_month", "Spend Month", input_month_vars, current_month, multiple=F)),
               column(3, selectInput("budget_spend_year", "Spend Year", unique(spend_raw_data$year), current_year, multiple=F))
             ),
-            plotlyOutput("budget_vs_spend_chart")
+            plotlyOutput("budget_vs_spend_chart"),
+            HTML("<i>*Hover around the chart to see how much was spent and how much was left over from budget.</i>")
           ),
           
         )
