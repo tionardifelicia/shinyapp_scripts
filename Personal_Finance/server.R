@@ -32,6 +32,47 @@ server <- function(input, output) {
     )
   })
   
+  output$asset_dt <- renderDataTable({
+    groupby_var <- input$view_asset_options
+    
+    asset_df <- asset_raw_data %>%
+      mutate(
+        account_type=str_to_title(gsub("_"," ", account_type)),
+        account=str_to_title(gsub("_", " ", account))
+        ) %>%
+      group_by(across(all_of(groupby_var))) %>%
+      summarize(amount=sum(amount)) %>%
+      ungroup() %>%
+      mutate(amount=paste("$ ", formatC(amount, digits=0, big.mark=",", format="f")))
+    
+    new_colnames <- str_to_title(gsub("_", " ", names(asset_df)))
+    names(asset_df) <- new_colnames
+    
+    asset_dt <- datatable(
+      asset_df,
+      rownames=F,
+      extensions = "Buttons",
+      options = list(scrollX = T,
+                     scrollY = "70vh",   # 70% of window height
+                     paging = F,
+                     dom = "tB",   # Buttons, table
+                     # dom = 'l<"sep">Bfrtip',
+                     buttons = c("copy"))
+    )
+    
+    # datatable(final_format(),
+    #           rownames = F,
+    #           extensions = 'Buttons',
+    #           options = list(scrollX = T,
+    #                          scrollY = '70vh',   # 70% of window height
+    #                          paging = F,
+    #                          dom = 'fBt',   # filtering input, Buttons, table
+    #                          buttons = c('csv', 'excel'))
+    # ) %>%
+    #   formatPercentage(c('Multiplier'), digits = 0)
+    
+  })
+  
   #### Budget Page ####
   month_spend_var <- reactive({
     year_from_var <- input$budget_spend_year

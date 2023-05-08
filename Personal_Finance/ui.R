@@ -27,27 +27,27 @@ ui <- dashboardPage(
                    title="Assets",
                    status="primary",
                    solidHeader=F,
-                   height="300px",
+                   height="600px",
                    width=12,
                    column(7),
-                   column(5, selectInput("view_asset_options", "", c("By Account Name", "By Account Type"))),
-                   textOutput("assets_text")
-                   ),
-                 box(
-                   title="Box 2",
-                   status="primary",
-                   solidHeader=TRUE,
-                   height="300px",
-                   width=12)
-                 ),
+                   column(5, selectInput("view_asset_options", "", c("By Account Name"="account", "By Account Type"="account_type"))),
+                   dataTableOutput("asset_dt")
+                   )
+          ),
           column(8,
                  box(
-                   title="Chart 1",
+                   title="",
                    status="primary",
-                   solidHeader=TRUE,
-                   height="620px",
-                   width=12)
+                   solidHeader=F,
+                   height="600px",
+                   width=12,
+                   tabsetPanel(
+                     tabPanel("Net Worth"),
+                     tabPanel("Income vs Spending")
+                   
+                   )
                  )
+          )
         )
       ),
       
@@ -112,7 +112,7 @@ ui <- dashboardPage(
       tabItem(
         tabName="about_page",
         h2("About This Dashboard"),
-        h5("Personal Finance Shiny dashboard is built to track overall personal finance.")
+        h5("Personal Finance dashboard is an interactive Shiny dashboard built to track overall personal finance.")
         # h6("May 3, 2023")
       )
     )

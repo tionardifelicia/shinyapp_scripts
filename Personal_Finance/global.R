@@ -1,4 +1,4 @@
-pacman::p_load(dplyr, tidyr, shiny, shinydashboard, data.table, DT, shinyWidgets, readr, plotly, ggplot2, readxl)
+pacman::p_load(dplyr, tidyr, shiny, shinydashboard, data.table, DT, shinyWidgets, readr, plotly, ggplot2, readxl, stringr)
 
 shinyapp_path <- '/Users/feliciationardi/Documents/GitHub/shinyapp_scripts/Personal_Finance'
 setwd(shinyapp_path)
@@ -15,11 +15,11 @@ current_year <- year(base_date)
 #### Pull Raw Data ####
 raw_data_path <- '/Users/feliciationardi/Documents/productive/raw_data/personal_finance_raw_data_dummies.xlsx'
 # base_raw_data_path <- '/Users/feliciationardi/Documents/productive/raw_data/personal_finance_raw_data.xlsx'
-spend_raw_filename <- 'expenses_data.csv'
+
 spend_raw_data <- read_excel(raw_data_path, 'expenses_data')
 budget_raw_data <- read_excel(raw_data_path, 'budget_data')
 networth_raw_data <- read_excel(raw_data_path, 'net_worth_data')
-
+asset_raw_data <- read_excel(raw_data_path, 'assets_data')
 
 
 #### Clean up Data ####
