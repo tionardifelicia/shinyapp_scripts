@@ -241,7 +241,7 @@ server <- function(input, output) {
     
     fig <- spend_trend_df %>%
       plot_ly(
-        x=~xaxis_tick_label,
+        x=~xaxis_hover_label,
         y=~amount,
         customdata=spend_trend_df$xaxis_hover_label,
         hovertemplate=" %{customdata} <br> <b>%{y}</b> <extra></extra>",
@@ -249,9 +249,9 @@ server <- function(input, output) {
       ) %>%
       layout(
         xaxis=list(title="",
-                   tickmode="array",
-                   tickvals=~xaxis_tick_label, # so that xaxis tick labels are in order according to this column's values
-                   tickvals=~xaxis_tick_label,
+                   tickmode="array", # to manually set the tick values on x axis
+                   tickvals=~xaxis_hover_label,
+                   ticktext=~xaxis_tick_label,
                    zeroline=F),
         yaxis=list(title="",
                    zeroline=F,
@@ -264,19 +264,6 @@ server <- function(input, output) {
                         font=list(size=14))
       )
     fig
-    # xaxis=list(title="",
-    #            zeroline=F,
-    #            tickprefix="$",
-    #            tickformat=",d"),
-    # yaxis=list(title="",
-    #            showgrid=F,
-    #            showline=F,
-    #            zeroline=F,
-    #            tickfont=list(size=14),
-    #            ticksuffix="  "),
-    # bargap=0.3,
-    # hoverlabel=list(bgcolor="white",
-    #                 font=list(size=14))
   })
   
   # Spend - By Category Chart
@@ -323,6 +310,49 @@ server <- function(input, output) {
                         font=list(size=14))
       )
     fig
+  })
+  
+  
+  # Spend - Summary Boxes
+  output$spend_summary_text <- renderUI({
+    # total_spend_var <- formatC(sum(spend_trend_df()$amount), format="f", big.mark=",", digits=0)
+    # avg_monthly_spend_var <- formatC(sum(spend_trend_df()$amount)/nrow(spend_trend_df()), format="f", big.mark=",", digits=0)
+
+    str1 <- paste("From ", month.abb[as.numeric(input$spend_month_from)], " ", input$spend_year_from,
+                  " to ", month.abb[as.numeric(input$spend_month_to)], " ", input$spend_year_to, ":<br>")
+    # str2 <- paste("<p style='font-size:20px;'><b>$ ", total_spend_var, "</b> Total Spend</p>")
+    # str3 <- paste("<p style='font-size:20px;'><b>$ ", avg_monthly_spend_var, "</b> Average Monthly Spend: </p>")
+
+    HTML(str1)
+    # HTML(paste(str1, str2, str3, sep = '<br/>'))
+    # HTML(paste0("<p style='font-size:34px;'>",
+    #   paste(str1, str2, str3, sep = "<br/>"),
+    #   "</p>")
+    # )
+  })
+  
+  output$spend_summary_info <- renderUI({
+    total_spend_var <- paste("$ ", formatC(sum(spend_trend_df()$amount), format="f", big.mark=",", digits=0))
+    avg_monthly_spend_var <- paste("$ ", formatC(sum(spend_trend_df()$amount)/nrow(spend_trend_df()), format="f", big.mark=",", digits=0))
+    
+    fluidRow(
+      column(12,
+             infoBox(
+               title="Total Spend",
+               value=total_spend_var,
+               icon=icon("coins"),
+               color="aqua",
+               width=12
+             )),
+      column(12,
+             infoBox(
+               title="Average Monthly Spend",
+               value=avg_monthly_spend_var,
+               icon=icon("coins"),
+               color="aqua",
+               width=12
+             ))
+    )
   })
   
   

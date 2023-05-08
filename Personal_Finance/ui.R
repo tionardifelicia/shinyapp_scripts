@@ -86,32 +86,36 @@ ui <- dashboardPage(
                      plotlyOutput("spend_category_chart"))
         ),
         fluidRow(
-          box(title="Chart Configurations", status="info", width=9,
-              column(3, selectizeInput("spend_month_from", "From: Month", input_month_vars, current_month, multiple=F)),
-              column(3, selectInput("spend_year_from", "Year", unique(spend_raw_data$year), current_year, multiple=F)),
-              column(3, selectInput("spend_month_to", "To: Month", input_month_vars, current_month, multiple=F)),
-              column(3, selectizeInput("spend_year_to", "Year", unique(spend_raw_data$year), current_year, multiple=F)),
-              
-              column(6, selectizeInput("spend_category", "Categories:", c("All"= "", budget_raw_data$category), "", multiple=T)),
-              column(6)
-              ),
-          box(title="", status="info", width=3,
-              renderText("test <br> test")
+          column(9,
+                 box(title="Chart Configurations", status="info",
+                     width=12,
+                      column(3, selectizeInput("spend_month_from", "From: Month", input_month_vars, current_month, multiple=F)),
+                      column(3, selectInput("spend_year_from", "Year", unique(spend_raw_data$year), current_year, multiple=F)),
+                      column(3, selectInput("spend_month_to", "To: Month", input_month_vars, current_month, multiple=F)),
+                      column(3, selectizeInput("spend_year_to", "Year", unique(spend_raw_data$year), current_year, multiple=F)),
+                      
+                      column(6, selectizeInput("spend_category", "Categories:", c("All"= "", budget_raw_data$category), "", multiple=T)),
+                      column(6)
               )
+          ),
+          column(3, 
+                 htmlOutput("spend_summary_text"),
+                 uiOutput("spend_summary_info"))
+          
+          # box(title="Summary", status="info", width=3,
+          #     # htmlOutput("spend_summary_text")
+          #     )
         )
       ),
       
       tabItem(
         tabName="about_page",
         h2("About This Dashboard"),
-        h5("This dashboard is built to track overall personal finance. May 3, 2023")
+        h5("Personal Finance Shiny dashboard is built to track overall personal finance.")
+        # h6("May 3, 2023")
       )
     )
 
-      
-      
-      
-    
   )
 )
 
