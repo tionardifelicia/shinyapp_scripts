@@ -7,11 +7,9 @@ server <- function(input, output) {
     fluidRow(
       valueBox(
         value=networth_var,
-        # value=1000,
         "Net Worth",
         icon=icon("coins"),
         color="aqua",
-        # red, yellow, aqua, blue, light-blue, green, navy, teal, olive, lime, orange, fuchsia, purple, maroon, black.
         width=4
       ),
       valueBox(
@@ -22,7 +20,6 @@ server <- function(input, output) {
         width=4
       ),
       valueBox(
-        # value="Rent & Food and Drinks",
         value=ytd_spend_var,
         "YTD Spending",
         icon=icon("chart-pie"),
@@ -55,8 +52,7 @@ server <- function(input, output) {
       options = list(scrollX = T,
                      scrollY = "70vh",   # 70% of window height
                      paging = F,
-                     dom = "tB",   # Buttons, table
-                     # dom = 'l<"sep">Bfrtip',
+                     dom = "tB",
                      buttons = c("copy"))
     )
   })
@@ -65,11 +61,9 @@ server <- function(input, output) {
     time_period_var <- input$networth_chart_options
     
     if(time_period_var=="Last Six Months") {
-      networth_df <- networth_data %>%
-        filter(year_month>=six_months_ago_var)
+      networth_df <- networth_data %>% filter(year_month>=six_months_ago_var)
     } else if(time_period_var=="Last Year") {
-      networth_df <- networth_data %>%
-        filter(year_month>=last_year_var)
+      networth_df <- networth_data %>% filter(year_month>=last_year_var)
     } else {
       networth_df <- networth_data
     }
@@ -82,12 +76,11 @@ server <- function(input, output) {
     
     networth_df2 <- networth_df %>%
       merge(xaxis_labels_df, by.x=c("year", "month"), by.y=c("year", "min_month"), all.x=T) %>%
-      mutate(xaxis_tick_label=if_else(is.na(xaxis_tick_label1), paste0(month.abb[month]), xaxis_tick_label1)) %>%
-      mutate(xaxis_hover_label=paste0(month.abb[month], " ", as.character(year))) %>%
-      mutate(yvalue_hover_label=paste("$", formatC(balance/1000, digits=1, big.mark=",", format="f"), "K"))
-    
-    # formatC(networth_df$balance, "$", , digits=1, big.mark=",", format="f", suffix="K")
-    networth_df2
+      mutate(
+        xaxis_tick_label=if_else(is.na(xaxis_tick_label1), paste0(month.abb[month]), xaxis_tick_label1),
+        xaxis_hover_label=paste0(month.abb[month], " ", as.character(year)),
+        yvalue_hover_label=paste("$", formatC(balance/1000, digits=1, big.mark=",", format="f"), "K")
+      )
     
     fig <- networth_df2 %>%
       plot_ly(
@@ -97,11 +90,8 @@ server <- function(input, output) {
         mode="lines",
         line=list(width=3.5),
         fill="tozeroy",
-        # colors_list <- c("#2B86BB", "#348ABC","#3C8DBC","#4491BD","#4E95BE","#5698BE","#5F9BBE","#689EBE","#70A1BE","#79A4BE","#89AABE","#91AEBF","#9AB2C1", "#9FB4C1", "#A6B7C2")
         fillcolor="#E6F4FC",
         customdata=paste0(networth_df2$xaxis_hover_label, "<br><b>", networth_df2$yvalue_hover_label, "</b>"),
-        # customdata2=networth_df2$yvalue_hover_label,
-        # hovertemplate=" %{customdata} <br> <b>%{y}</b><extra></extra>"
         hovertemplate=" %{customdata}<extra></extra>"
       ) %>%
       layout(
@@ -109,7 +99,6 @@ server <- function(input, output) {
           title="",
           zeroline=F,
           showticklabels=F,
-          # ticktext=~yvalue_hover_label,
           showline=F,
           showgrid=F),
         xaxis=list(
@@ -156,13 +145,7 @@ server <- function(input, output) {
       mutate(hover_label=paste(xaxis_hover_label, "<br>",
                                "Income: <b>", income_hover_label, "</b><br>",
                                "Spend: <b>", spend_hover_label, "</b><br>",
-                               "Savings: <b>", savings_hover_label)) 
-    # %>%
-    #   mutate(fill_colors=if_else(savings<0, "#F8C4C2", "#DCF9DA"))
-
-    cashflow_df2
-    
-    head(cashflow_df2,10)
+                               "Savings: <b>", savings_hover_label))
     
     fig1 <- cashflow_df2 %>%
       plot_ly(
@@ -196,8 +179,6 @@ server <- function(input, output) {
         hoverlabel=list(bgcolor="white", font=list(size=14))
       )
     
-    fig1
-    
     fig2 <- cashflow_df2 %>%
       plot_ly(
         x=~xaxis_hover_label,
@@ -229,8 +210,6 @@ server <- function(input, output) {
         ),
         hoverlabel=list(bgcolor="white", font=list(size=14))
       )
-      
-    fig2
     
     fig3 <- cashflow_df2 %>%
       plot_ly(
@@ -264,15 +243,9 @@ server <- function(input, output) {
         ),
         hoverlabel=list(bgcolor="white", font=list(size=14))
       )
-
-    fig3
     
     fig <- subplot(fig1, fig2, fig3, nrows=3, shareX=T) %>%
       layout(hovermode="x unified")
-    
-    fig
-    
-    
   })
   
   
@@ -295,9 +268,7 @@ server <- function(input, output) {
   
   # Budget - Value Boxes
   output$budget_value_boxes <- renderUI({
-    #          # red, yellow, aqua, blue, light-blue, green, navy, teal, olive, lime, orange, fuchsia, purple, maroon, black.
-    
-    budget_var <- paste("$",
+   budget_var <- paste("$",
                           formatC(
                             budget_var,
                             format="f",
@@ -351,24 +322,18 @@ server <- function(input, output) {
   })
   
   
-  
   # Budget - Monthly Budget vs Monthly Spending Chart
   output$budget_vs_spend_chart <- renderPlotly({
     year_from_var <- input$budget_spend_year
     month_from_var <- input$budget_spend_month
     year_month_var <- paste0(as.character(year_from_var), "_", sprintf("%02d", as.numeric(month_from_var)))
-    # year_month_var <- "2023_05"
     
     monthly_spend_df <- spend_data %>%
       filter(year_month==year_month_var) %>%
-      # filter(year_month=="2023_02") %>%
       group_by(category) %>%
       summarize(across(c("amount"), ~sum(.x, na.rm=T))) %>%
       ungroup() %>%
       rename("spend_amount"="amount")
-    
-    monthly_spend_df
-    budget_raw_data
     
     budget_vs_spend_df <- budget_raw_data %>%
       rename("budget_amount"="amount") %>%
@@ -434,7 +399,6 @@ server <- function(input, output) {
           "MTD Spending",
           icon=icon("coins"),
           color="aqua",
-          # red, yellow, aqua, blue, light-blue, green, navy, teal, olive, lime, orange, fuchsia, purple, maroon, black.
           width=4
         ),
         valueBox(
@@ -471,7 +435,6 @@ server <- function(input, output) {
   
   # Spend - Over Time Chart
   spend_trend_df <- reactive({
-    # spend_trend_df <- filtered_spend_df %>%
     spend_trend_df <- filtered_spend_df() %>%
       filter(is.null(input$spend_category) | category %in% input$spend_category) %>%
       group_by(year_month, year, month) %>%
@@ -515,15 +478,13 @@ server <- function(input, output) {
                    tickformat=",d",
                    font=list(size=14)),
         bargap=0.3,
-        hoverlabel=list(bgcolor="white",
-                        font=list(size=14))
+        hoverlabel=list(bgcolor="white", font=list(size=14))
       )
     fig
   })
   
   # Spend - By Category Chart
   spend_category_df <- reactive({
-    # spend_category_df <- filtered_spend_df %>%
     spend_category_df <- filtered_spend_df() %>%
     filter(is.null(input$spend_category) | category %in% input$spend_category) %>%
       group_by(category) %>%
@@ -552,19 +513,10 @@ server <- function(input, output) {
         hovertemplate=" %{y} <br> <b>%{x}</b><br> ~%{customdata} of spend<extra></extra>"
       ) %>%
       layout(
-        xaxis=list(title="",
-                   zeroline=F,
-                   tickprefix="$",
-                   tickformat=",d"),
-        yaxis=list(title="",
-                   showgrid=F,
-                   showline=F,
-                   zeroline=F,
-                   tickfont=list(size=14),
-                   ticksuffix="  "),
+        xaxis=list(title="", zeroline=F, tickprefix="$", tickformat=",d"),
+        yaxis=list(title="", showgrid=F, showline=F, zeroline=F, tickfont=list(size=14), ticksuffix="  "),
         bargap=0.3,
-        hoverlabel=list(bgcolor="white",
-                        font=list(size=14))
+        hoverlabel=list(bgcolor="white", font=list(size=14))
       )
     fig
   })
@@ -572,20 +524,9 @@ server <- function(input, output) {
   
   # Spend - Summary Boxes
   output$spend_summary_text <- renderUI({
-    # total_spend_var <- formatC(sum(spend_trend_df()$amount), format="f", big.mark=",", digits=0)
-    # avg_monthly_spend_var <- formatC(sum(spend_trend_df()$amount)/nrow(spend_trend_df()), format="f", big.mark=",", digits=0)
-
     str1 <- paste("From ", month.abb[as.numeric(input$spend_month_from)], " ", input$spend_year_from,
                   " to ", month.abb[as.numeric(input$spend_month_to)], " ", input$spend_year_to, ":<br>")
-    # str2 <- paste("<p style='font-size:20px;'><b>$ ", total_spend_var, "</b> Total Spend</p>")
-    # str3 <- paste("<p style='font-size:20px;'><b>$ ", avg_monthly_spend_var, "</b> Average Monthly Spend: </p>")
-
     HTML(str1)
-    # HTML(paste(str1, str2, str3, sep = '<br/>'))
-    # HTML(paste0("<p style='font-size:34px;'>",
-    #   paste(str1, str2, str3, sep = "<br/>"),
-    #   "</p>")
-    # )
   })
   
   output$spend_summary_info <- renderUI({
@@ -611,8 +552,6 @@ server <- function(input, output) {
              ))
     )
   })
-  
-  
 }
 
 ## Run the application 

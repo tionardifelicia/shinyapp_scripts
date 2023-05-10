@@ -1,8 +1,4 @@
-library(shiny)
-library(shinydashboard)
-library(ggplot2)
 
-# Define UI for the application
 ui <- dashboardPage(
   dashboardHeader(title="Personal Finance Dashboard"),
   
@@ -16,8 +12,8 @@ ui <- dashboardPage(
   ),
   
   dashboardBody(
-    
     tabItems(
+      #### Overview Page ####
       tabItem(
         tabName="overview_page",
         uiOutput('overview_value_boxes'),
@@ -54,19 +50,17 @@ ui <- dashboardPage(
                          column(3, selectInput("income_vs_spend_options", "", c("Last Six Months", "Last Year", "All Time"), selected="All Time", multiple=F)),
                          column(9)),
                        plotlyOutput("income_vs_spend_chart"))
-                   
                    )
                  )
           )
         )
       ),
       
+      #### Budget Page ####
       tabItem(
         tabName="budget_page",
         fluidRow(
-          column(3,
-            uiOutput("budget_value_boxes")
-          ),
+          column(3, uiOutput("budget_value_boxes")),
           box(
             # title="Monthly Budget vs Monthly Spending",
             status="info",
@@ -86,7 +80,7 @@ ui <- dashboardPage(
         )
       ),
       
-      
+      #### Spend Page ####
       tabItem(
         tabName="spend_page",
         uiOutput("spend_value_boxes"),
@@ -112,18 +106,14 @@ ui <- dashboardPage(
           column(3, 
                  htmlOutput("spend_summary_text"),
                  uiOutput("spend_summary_info"))
-          
-          # box(title="Summary", status="info", width=3,
-          #     # htmlOutput("spend_summary_text")
-          #     )
         )
       ),
       
+      #### About Page ####
       tabItem(
         tabName="about_page",
         h2("About This Dashboard"),
         h5("Personal Finance dashboard is an interactive Shiny dashboard built to track overall personal finance.")
-        # h6("May 3, 2023")
       )
     )
 
