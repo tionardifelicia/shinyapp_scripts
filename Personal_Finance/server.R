@@ -357,7 +357,7 @@ server <- function(input, output) {
     year_from_var <- input$budget_spend_year
     month_from_var <- input$budget_spend_month
     year_month_var <- paste0(as.character(year_from_var), "_", sprintf("%02d", as.numeric(month_from_var)))
-    # year_month_var <- "2023_02"
+    # year_month_var <- "2023_05"
     
     monthly_spend_df <- spend_data %>%
       filter(year_month==year_month_var) %>%
@@ -385,7 +385,7 @@ server <- function(input, output) {
       mutate(shade_color=if_else(amount_left<0, "#DC3D4B", "#5BBDC8")) %>%
       mutate(text_labels=paste("$", formatC(budget_amount, format="f", digits=0, big.mark=","))) %>%
       mutate(spent_hover_label=paste("$", formatC(spend_amount, format="f", digits=0, big.mark=","))) %>%
-      mutate(leftover_hover_label=paste("$", formatC(max(amount_left,0), format="f", digits=0, big.mark=","))) %>%
+      mutate(leftover_hover_label=paste("$", formatC(if_else(amount_left<0, 0, amount_left), format="f", digits=0, big.mark=","))) %>%
       arrange(-budget_amount)
     
     fig <- budget_vs_spend_df2 %>%
