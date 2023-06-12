@@ -19,8 +19,10 @@ names(input_month_vars) <- month.abb
 
 
 #### Pull Raw Data ####
-raw_data_path <- '/Users/feliciationardi/Documents/productive/raw_data/personal_finance_raw_data_dummies.xlsx'
+raw_data_path <- '/Users/feliciationardi/Documents/productive/raw_data/personal_finance_raw_data3.xlsx'
+# raw_data_path <- '/Users/feliciationardi/Documents/productive/raw_data/personal_finance_raw_data_dummies.xlsx'
 # raw_data_path <- '/Users/feliciationardi/Documents/productive/raw_data/personal_finance_raw_data.xlsx'
+
 
 spend_raw_data <- read_excel(raw_data_path, 'expenses_data')
 budget_raw_data <- read_excel(raw_data_path, 'budget_data')
